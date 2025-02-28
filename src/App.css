@@ -1,0 +1,251 @@
+#root {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.game-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20px;
+  justify-content: center;
+}
+
+.status-bar {
+  display: flex;
+  gap: 20px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #333;
+  padding: 2px;
+  border: 2px solid #666;
+}
+
+.row {
+  display: flex;
+  gap: 2px;
+}
+
+.cell {
+  width: 35px;
+  height: 35px;
+  background: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  position: relative;
+  cursor: pointer;
+}
+
+.cell.revealed.mine {
+  background: #990000;
+}
+
+.cell.revealed {
+  background: #444;
+}
+
+.cell.flagged::before {
+  content: '🚩';
+  font-size: 1.2em;
+}
+
+.cell.character {
+  position: relative;
+}
+
+.cell.character::after {
+  content: attr(data-emoji);
+  font-size: 1.5em;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+.character-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.character-select h2 {
+  font-size: 2em;
+  color: #333;
+  margin: 0;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  max-width: 500px;
+}
+
+.character-option {
+  width: 80px;
+  height: 80px;
+  font-size: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.character-option:hover {
+  transform: scale(1.1);
+  border-color: #666;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.game-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.event-log {
+  width: 250px;
+  height: 400px;
+  background: #333;
+  border-radius: 8px;
+  padding: 15px;
+  color: white;
+  overflow-y: auto;
+}
+
+.event-log h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.2em;
+  text-align: left;
+}
+
+.event-log-entry {
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  background: #444;
+  text-align: left;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.event-log-entry.damage {
+  border-left: 3px solid #ff4444;
+}
+
+.event-log-entry.health {
+  border-left: 3px solid #44ff44;
+}
+
+.event-log-entry.points {
+  border-left: 3px solid #4444ff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -5px);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+}
+
+.instructions {
+  background: #333;
+  padding: 15px;
+  border-radius: 8px;
+  color: white;
+  width: 100%;
+  max-width: 400px;
+}
+
+.menu-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.menu-tab {
+  padding: 8px 16px;
+  background: #444;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.menu-tab:hover {
+  background: #555;
+}
+
+.menu-tab.active {
+  background: #666;
+}
+
+.inventory {
+  text-align: left;
+}
+
+.inventory h3 {
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.inventory-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background: #444;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.empty-inventory {
+  text-align: center;
+  color: #888;
+}
+
+.instructions p {
+  margin: 5px 0;
+}
