@@ -66,9 +66,9 @@ function App() {
       }))
     )
   
-    // Get the starting position (use character position if not first level)
-    const startX = level === 1 ? Math.floor(GRID_SIZE_WIDTH / 2) : character.x
-    const startY = level === 1 ? Math.floor(GRID_SIZE_HEIGHT / 2) : character.y
+    // Always use character's current position as the starting point
+    const startX = character.x
+    const startY = character.y
   
     // Create a safe zone around the starting position
     const safeZone = []
@@ -123,7 +123,7 @@ function App() {
       }
     }
 
-    // Reveal the starting area
+    // Reveal the starting area and safe zone
     const revealCell = (y: number, x: number) => {
       if (y < 0 || y >= GRID_SIZE_HEIGHT || x < 0 || x >= GRID_SIZE_WIDTH || newGrid[y][x].isRevealed) return
       
@@ -138,7 +138,8 @@ function App() {
       }
     }
 
-    revealCell(startY, startX)
+    // Reveal all cells in the safe zone
+    safeZone.forEach(pos => revealCell(pos.y, pos.x))
     setGrid(newGrid)
   }
 
