@@ -33,6 +33,7 @@ function App() {
   const [grid, setGrid] = useState<Cell[][]>([])
   const [logEntries, setLogEntries] = useState<LogEntry[]>([])
   const [menuTab, setMenuTab] = useState<'instructions' | 'inventory'>('instructions')
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const AVAILABLE_CHARACTERS = [
     '🧙‍♂️', '🕵️‍♂️', '🥷'
   ]
@@ -132,23 +133,23 @@ function App() {
     let newX = x
     let newY = y
 
-    // Handle diagonal movement with WASD + IJKL combinations
+    // Handle diagonal movement with WASD + Arrow key combinations
     const key = e.key.toLowerCase()
     
     // Diagonal movements
-    if ((key === 'w' && e.shiftKey) || (key === 'i' && e.shiftKey)) {
+    if ((key === 'w' && e.shiftKey) || (e.key === 'ArrowUp' && e.shiftKey)) {
       // Up-left diagonal
       newY = Math.max(0, y - 1)
       newX = Math.max(0, x - 1)
-    } else if ((key === 's' && e.shiftKey) || (key === 'k' && e.shiftKey)) {
+    } else if ((key === 's' && e.shiftKey) || (e.key === 'ArrowDown' && e.shiftKey)) {
       // Down-right diagonal
       newY = Math.min(GRID_SIZE_HEIGHT - 1, y + 1)
       newX = Math.min(GRID_SIZE_WIDTH - 1, x + 1)
-    } else if ((key === 'a' && e.shiftKey) || (key === 'j' && e.shiftKey)) {
+    } else if ((key === 'a' && e.shiftKey) || (e.key === 'ArrowLeft' && e.shiftKey)) {
       // Down-left diagonal
       newY = Math.min(GRID_SIZE_HEIGHT - 1, y + 1)
       newX = Math.max(0, x - 1)
-    } else if ((key === 'd' && e.shiftKey) || (key === 'l' && e.shiftKey)) {
+    } else if ((key === 'd' && e.shiftKey) || (e.key === 'ArrowRight' && e.shiftKey)) {
       // Up-right diagonal
       newY = Math.max(0, y - 1)
       newX = Math.min(GRID_SIZE_WIDTH - 1, x + 1)
@@ -156,19 +157,19 @@ function App() {
       // Regular cardinal movements
       switch (key) {
         case 'w':
-        case 'i':
+        case 'arrowup':
           newY = Math.max(0, y - 1)
           break
         case 's':
-        case 'k':
+        case 'arrowdown':
           newY = Math.min(GRID_SIZE_HEIGHT - 1, y + 1)
           break
         case 'a':
-        case 'j':
+        case 'arrowleft':
           newX = Math.max(0, x - 1)
           break
         case 'd':
-        case 'l':
+        case 'arrowright':
           newX = Math.min(GRID_SIZE_WIDTH - 1, x + 1)
           break
         default:
@@ -343,6 +344,51 @@ function App() {
         <div className="status-bar">
           <div>Health: {character.health}</div>
           <div>Points: {character.points}</div>
+          <div className="menu-dropdown">
+            <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              Menu
+            </button>
+            {isMenuOpen && (
+              <div className="menu-content">
+                <div className="menu-tabs">
+                  <button 
+                    className={`menu-tab ${menuTab === 'instructions' ? 'active' : ''}`}
+                    onClick={() => setMenuTab('instructions')}
+                  >
+                    Instructions
+                  </button>
+                  <button 
+                    className={`menu-tab ${menuTab === 'inventory' ? 'active' : ''}`}
+                    onClick={() => setMenuTab('inventory')}
+                  >
+                    Inventory
+                  </button>
+                </div>
+                {menuTab === 'instructions' ? (
+                  <div className="instructions">
+                    <p>Use WASD or Arrow keys to move</p>
+                    <p>Hold Shift + WASD/Arrow keys for diagonal movement</p>
+                  </div>
+                ) : (
+                  <div className="inventory">
+                    <h3>Your Loot</h3>
+                    {Object.entries(character.inventory)
+                      .sort(([,a], [,b]) => b - a)
+                      .map(([item, count]) => (
+                        <div key={item} className="inventory-item">
+                          <span className="item-name">{item}</span>
+                          <span className="item-count">x{count}</span>
+                        </div>
+                      ))
+                    }
+                    {Object.keys(character.inventory).length === 0 && (
+                      <p className="empty-inventory">No items yet</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <div className="grid" onContextMenu={(e) => e.preventDefault()}>
         {grid.map((row, y) => (
@@ -365,44 +411,7 @@ function App() {
           </div>
         ))}
       </div>
-        <div className="menu">
-          <div className="menu-tabs">
-            <button 
-              className={`menu-tab ${menuTab === 'instructions' ? 'active' : ''}`}
-              onClick={() => setMenuTab('instructions')}
-            >
-              Instructions
-            </button>
-            <button 
-              className={`menu-tab ${menuTab === 'inventory' ? 'active' : ''}`}
-              onClick={() => setMenuTab('inventory')}
-            >
-              Inventory
-            </button>
-          </div>
-          {menuTab === 'instructions' ? (
-            <div className="instructions">
-              <p>Use WASD or IJKL keys to move</p>
-              <p>Hold Shift + WASD/IJKL for diagonal movement</p>
-            </div>
-          ) : (
-            <div className="inventory">
-              <h3>Your Loot</h3>
-              {Object.entries(character.inventory)
-                .sort(([,a], [,b]) => b - a)
-                .map(([item, count]) => (
-                  <div key={item} className="inventory-item">
-                    <span className="item-name">{item}</span>
-                    <span className="item-count">x{count}</span>
-                  </div>
-                ))
-              }
-              {Object.keys(character.inventory).length === 0 && (
-                <p className="empty-inventory">No items yet</p>
-              )}
-            </div>
-          )}
-        </div>
+
       </div>
       <div className="event-log">
         <h2>Event Log</h2>
