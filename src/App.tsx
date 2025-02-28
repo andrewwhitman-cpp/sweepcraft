@@ -199,14 +199,16 @@ function App() {
     if (newX !== x || newY !== y) {
       if (!grid[newY][newX].isRevealed) {
         handleDig(newX, newY)
-      } else if (grid[newY][newX].isDownstairs) {
+      }
+      setCharacter(prev => ({ ...prev, x: newX, y: newY }))
+      
+      // Check for downstairs after movement is complete
+      if (grid[newY][newX].isDownstairs) {
         // Go to next level
         setLevel(prev => prev + 1)
         initializeGrid()
         addLogEntry(`Descended to level ${level + 1}!`, 'points')
-        return
       }
-      setCharacter(prev => ({ ...prev, x: newX, y: newY }))
     }
   }
 
