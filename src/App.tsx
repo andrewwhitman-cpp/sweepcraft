@@ -26,9 +26,10 @@ interface LogEntry {
 }
 
 function App() {
-  const GRID_SIZE_WIDTH = 15
-  const GRID_SIZE_HEIGHT = 15
-  const MINE_COUNT = 35  // Adjusted for square grid
+  const [level, setLevel] = useState(1)
+  const GRID_SIZE_WIDTH = 25
+  const GRID_SIZE_HEIGHT = 20
+  const MINE_COUNT = Math.min(GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * (0.15 + (level * 0.05)), GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * 0.50)
   const INITIAL_HEALTH = 100
 
   const [grid, setGrid] = useState<Cell[][]>([])
@@ -40,7 +41,6 @@ function App() {
   ]
 
   const [showCharacterSelect, setShowCharacterSelect] = useState(true)
-  const [level, setLevel] = useState(1)
   const [character, setCharacter] = useState<Character>({
     x: Math.floor(GRID_SIZE_WIDTH / 2),
     y: Math.floor(GRID_SIZE_HEIGHT / 2),
@@ -364,6 +364,7 @@ function App() {
     <div className="game-container">
       <div className="game-content">
         <div className="status-bar">
+          <div>Level: {level}</div>
           <div>Health: {character.health}</div>
           <div>Points: {character.points}</div>
           <div className="menu-dropdown">
