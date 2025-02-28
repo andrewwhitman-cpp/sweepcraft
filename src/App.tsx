@@ -7,6 +7,7 @@ interface Cell {
   isFlagged: boolean
   neighborMines: number
   loot?: string
+  isDownstairs?: boolean
 }
 
 interface Character {
@@ -39,6 +40,7 @@ function App() {
   ]
 
   const [showCharacterSelect, setShowCharacterSelect] = useState(true)
+  const [level, setLevel] = useState(1)
   const [character, setCharacter] = useState<Character>({
     x: Math.floor(GRID_SIZE_WIDTH / 2),
     y: Math.floor(GRID_SIZE_HEIGHT / 2),
@@ -47,6 +49,11 @@ function App() {
     inventory: {},
     emoji: '🧙‍♂️'
   })
+
+  const addLogEntry = (text: string, type: 'damage' | 'health' | 'points') => {
+    const id = Date.now()
+    setLogEntries(prev => [{ text, type, id }, ...prev.slice(0, 49)])
+  }
 
   const initializeGrid = () => {
     // Create empty grid
@@ -59,9 +66,9 @@ function App() {
       }))
     )
   
-    // Get the starting position (center)
-    const startX = Math.floor(GRID_SIZE_WIDTH / 2)
-    const startY = Math.floor(GRID_SIZE_HEIGHT / 2)
+    // Get the starting position (use character position if not first level)
+    const startX = level === 1 ? Math.floor(GRID_SIZE_WIDTH / 2) : character.x
+    const startY = level === 1 ? Math.floor(GRID_SIZE_HEIGHT / 2) : character.y
   
     // Create a safe zone around the starting position
     const safeZone = []
@@ -83,6 +90,17 @@ function App() {
       if (!newGrid[y][x].isMine && !safeZone.some(pos => pos.x === x && pos.y === y)) {
         newGrid[y][x].isMine = true
         minesPlaced++
+      }
+    }
+
+    // Place downstairs on a random safe cell
+    let downstairsPlaced = false
+    while (!downstairsPlaced) {
+      const x = Math.floor(Math.random() * GRID_SIZE_WIDTH)
+      const y = Math.floor(Math.random() * GRID_SIZE_HEIGHT)
+      if (!newGrid[y][x].isMine && !safeZone.some(pos => pos.x === x && pos.y === y)) {
+        newGrid[y][x].isDownstairs = true
+        downstairsPlaced = true
       }
     }
 
@@ -181,6 +199,12 @@ function App() {
     if (newX !== x || newY !== y) {
       if (!grid[newY][newX].isRevealed) {
         handleDig(newX, newY)
+      } else if (grid[newY][newX].isDownstairs) {
+        // Go to next level
+        setLevel(prev => prev + 1)
+        initializeGrid()
+        addLogEntry(`Descended to level ${level + 1}!`, 'points')
+        return
       }
       setCharacter(prev => ({ ...prev, x: newX, y: newY }))
     }
@@ -221,11 +245,6 @@ function App() {
     let newlyRevealedCount = 0
     newGrid[targetY][targetX].isRevealed = true
     newlyRevealedCount++
-
-    const addLogEntry = (text: string, type: 'damage' | 'health' | 'points') => {
-      const id = Date.now()
-      setLogEntries(prev => [{ text, type, id }, ...prev.slice(0, 49)])
-    }
 
     if (grid[targetY][targetX].isMine) {
       setCharacter(prev => ({
@@ -406,6 +425,7 @@ function App() {
                   <span style={{ zIndex: 4, position: 'relative', color: '#fff', textShadow: '1px 1px 1px rgba(0,0,0,0.5)' }}>{cell.neighborMines}</span>
                 )}
                 {cell.isRevealed && cell.isMine && '💥'}
+                {cell.isRevealed && cell.isDownstairs && '⬇️'}
               </div>
             ))}
           </div>
