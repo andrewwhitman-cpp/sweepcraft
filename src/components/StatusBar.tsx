@@ -15,7 +15,7 @@ export function StatusBar({ level, character, isMenuOpen, setIsMenuOpen, menuTab
     <div className="status-bar">
       <div>Level: {level}</div>
       <div>Health: {character.health}</div>
-      <div>Points: {character.points}</div>
+      <div>Score: {character.points}</div>
       <Menu
         isOpen={isMenuOpen}
         setIsOpen={setIsMenuOpen}
