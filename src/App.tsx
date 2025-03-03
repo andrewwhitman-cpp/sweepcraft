@@ -37,7 +37,7 @@ function App() {
   const [menuTab, setMenuTab] = useState<'instructions' | 'inventory'>('instructions')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const AVAILABLE_CHARACTERS = [
-    '🧙‍♂️', '🕵️‍♂️', '🥷'
+    '🧙‍♂️'
   ]
 
   const [showCharacterSelect, setShowCharacterSelect] = useState(true)
