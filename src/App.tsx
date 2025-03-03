@@ -307,13 +307,7 @@ function App() {
     setGrid(newGrid)
   }
 
-  const handleFlag = (targetX: number, targetY: number) => {
-    if (grid[targetY][targetX].isRevealed) return
 
-    const newGrid = [...grid]
-    newGrid[targetY][targetX].isFlagged = !newGrid[targetY][targetX].isFlagged
-    setGrid(newGrid)
-  }
 
   const handleCharacterSelect = (emoji: string) => {
     setCharacter(prev => ({ ...prev, emoji }))
