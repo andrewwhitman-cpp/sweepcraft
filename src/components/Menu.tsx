@@ -11,7 +11,13 @@ interface MenuProps {
 type MenuCategory = 'main' | 'instructions' | 'inventory' | 'skillTree'
 
 export function Menu({ isOpen, setIsOpen, menuTab, setMenuTab, inventory }: MenuProps) {
-  const [currentView, setCurrentView] = React.useState<MenuCategory>('main')
+  const [currentView, setCurrentView] = React.useState<MenuCategory>(menuTab === 'main' ? 'main' : menuTab)
+
+  React.useEffect(() => {
+    if (menuTab !== 'main' && currentView === 'main') {
+      setCurrentView(menuTab)
+    }
+  }, [menuTab])
 
   const handleCategoryClick = (category: MenuCategory) => {
     setCurrentView(category)
