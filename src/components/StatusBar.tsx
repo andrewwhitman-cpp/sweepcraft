@@ -1,5 +1,5 @@
 import { Character } from './types'
-import { Menu } from './Menu'
+import { Menu } from '../components/Menu'
 
 interface StatusBarProps {
   level: number
