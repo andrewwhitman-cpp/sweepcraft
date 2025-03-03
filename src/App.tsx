@@ -154,7 +154,15 @@ function App() {
 
     // Handle diagonal movement with WASD + Arrow key combinations
     const key = e.key.toLowerCase()
-    
+
+    // Check for level progression when pressing 'e' on downstairs
+    if (key === 'e' && grid[y][x].isDownstairs) {
+      setLevel(prev => prev + 1)
+      initializeGrid()
+      addLogEntry(`Descended to level ${level + 1}!`, 'points')
+      return
+    }
+
     // Diagonal movements
     if ((key === 'w' && e.shiftKey) || (e.key === 'ArrowUp' && e.shiftKey)) {
       // Up-left diagonal
@@ -202,14 +210,6 @@ function App() {
         handleDig(newX, newY)
       }
       setCharacter(prev => ({ ...prev, x: newX, y: newY }))
-      
-      // Check for downstairs after movement is complete
-      if (grid[newY][newX].isDownstairs) {
-        // Go to next level
-        setLevel(prev => prev + 1)
-        initializeGrid()
-        addLogEntry(`Descended to level ${level + 1}!`, 'points')
-      }
     }
   }
 
@@ -391,6 +391,7 @@ function App() {
                   <div className="instructions">
                     <p>Use WASD or Arrow keys to move</p>
                     <p>Hold Shift + WASD/Arrow keys for diagonal movement</p>
+                    <p>Press 'E' while standing on ⬇️ to descend to the next level</p>
                   </div>
                 ) : (
                   <div className="inventory">
@@ -435,7 +436,9 @@ function App() {
           </div>
         ))}
       </div>
-
+      {grid[character.y]?.[character.x]?.isDownstairs && (
+        <div className="press-e-hint">Press 'E' to descend</div>
+      )}
       </div>
       <div className="event-log">
         <h2>Event Log</h2>
