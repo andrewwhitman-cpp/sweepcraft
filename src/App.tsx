@@ -29,7 +29,7 @@ function App() {
   const [level, setLevel] = useState(1)
   const GRID_SIZE_WIDTH = 25
   const GRID_SIZE_HEIGHT = 20
-  const MINE_COUNT = Math.min(GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * (0.15 + (level * 0.05)), GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * 0.50)
+  const MINE_COUNT = Math.min(GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * (0.05 + (level * 0.05)), GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * 0.50)
   const INITIAL_HEALTH = 100
 
   const [grid, setGrid] = useState<Cell[][]>([])
