@@ -1,5 +1,5 @@
 #root {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -190,6 +190,27 @@
 
 .event-log-entry.points {
   border-left: 3px solid #4444ff;
+}
+
+.press-e-hint {
+  position: relative;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 1em;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: float 2s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes fadeIn {

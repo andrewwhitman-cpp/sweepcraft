@@ -1,34 +1,15 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-
-interface Cell {
-  isMine: boolean
-  isRevealed: boolean
-  isFlagged: boolean
-  neighborMines: number
-  loot?: string
-  isDownstairs?: boolean
-}
-
-interface Character {
-  x: number
-  y: number
-  health: number
-  points: number
-  inventory: { [key: string]: number }
-  emoji: string
-}
-
-interface LogEntry {
-  text: string
-  type: 'damage' | 'health' | 'points'
-  id: number
-}
+import { Cell, Character, LogEntry } from './components/types'
+import { Grid } from './components/Grid'
+import { StatusBar } from './components/StatusBar'
+import { EventLog } from './components/EventLog'
 
 function App() {
-  const GRID_SIZE_WIDTH = 15
-  const GRID_SIZE_HEIGHT = 15
-  const MINE_COUNT = 35  // Adjusted for square grid
+  const [level, setLevel] = useState(1)
+  const GRID_SIZE_WIDTH = 25
+  const GRID_SIZE_HEIGHT = 20
+  const MINE_COUNT = Math.min(GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * (0.05 + (level * 0.05)), GRID_SIZE_HEIGHT * GRID_SIZE_WIDTH * 0.50)
   const INITIAL_HEALTH = 100
 
   const [grid, setGrid] = useState<Cell[][]>([])
@@ -36,11 +17,10 @@ function App() {
   const [menuTab, setMenuTab] = useState<'instructions' | 'inventory'>('instructions')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const AVAILABLE_CHARACTERS = [
-    '🧙‍♂️', '🕵️‍♂️', '🥷'
+    '🧙‍♂️'
   ]
 
   const [showCharacterSelect, setShowCharacterSelect] = useState(true)
-  const [level, setLevel] = useState(1)
   const [character, setCharacter] = useState<Character>({
     x: Math.floor(GRID_SIZE_WIDTH / 2),
     y: Math.floor(GRID_SIZE_HEIGHT / 2),
@@ -66,9 +46,9 @@ function App() {
       }))
     )
   
-    // Get the starting position (use character position if not first level)
-    const startX = level === 1 ? Math.floor(GRID_SIZE_WIDTH / 2) : character.x
-    const startY = level === 1 ? Math.floor(GRID_SIZE_HEIGHT / 2) : character.y
+    // Always use character's current position as the starting point
+    const startX = character.x
+    const startY = character.y
   
     // Create a safe zone around the starting position
     const safeZone = []
@@ -123,7 +103,7 @@ function App() {
       }
     }
 
-    // Reveal the starting area
+    // Reveal the starting area and safe zone
     const revealCell = (y: number, x: number) => {
       if (y < 0 || y >= GRID_SIZE_HEIGHT || x < 0 || x >= GRID_SIZE_WIDTH || newGrid[y][x].isRevealed) return
       
@@ -138,7 +118,8 @@ function App() {
       }
     }
 
-    revealCell(startY, startX)
+    // Reveal all cells in the safe zone
+    safeZone.forEach(pos => revealCell(pos.y, pos.x))
     setGrid(newGrid)
   }
 
@@ -153,7 +134,15 @@ function App() {
 
     // Handle diagonal movement with WASD + Arrow key combinations
     const key = e.key.toLowerCase()
-    
+
+    // Check for level progression when pressing 'e' on downstairs
+    if (key === 'e' && grid[y][x].isDownstairs) {
+      setLevel(prev => prev + 1)
+      initializeGrid()
+      addLogEntry(`Descended to level ${level + 1}!`, 'points')
+      return
+    }
+
     // Diagonal movements
     if ((key === 'w' && e.shiftKey) || (e.key === 'ArrowUp' && e.shiftKey)) {
       // Up-left diagonal
@@ -201,14 +190,6 @@ function App() {
         handleDig(newX, newY)
       }
       setCharacter(prev => ({ ...prev, x: newX, y: newY }))
-      
-      // Check for downstairs after movement is complete
-      if (grid[newY][newX].isDownstairs) {
-        // Go to next level
-        setLevel(prev => prev + 1)
-        initializeGrid()
-        addLogEntry(`Descended to level ${level + 1}!`, 'points')
-      }
     }
   }
 
@@ -362,87 +343,20 @@ function App() {
   return (
     <div className="game-container">
       <div className="game-content">
-        <div className="status-bar">
-          <div>Health: {character.health}</div>
-          <div>Points: {character.points}</div>
-          <div className="menu-dropdown">
-            <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              Menu
-            </button>
-            {isMenuOpen && (
-              <div className="menu-content">
-                <div className="menu-tabs">
-                  <button 
-                    className={`menu-tab ${menuTab === 'instructions' ? 'active' : ''}`}
-                    onClick={() => setMenuTab('instructions')}
-                  >
-                    Instructions
-                  </button>
-                  <button 
-                    className={`menu-tab ${menuTab === 'inventory' ? 'active' : ''}`}
-                    onClick={() => setMenuTab('inventory')}
-                  >
-                    Inventory
-                  </button>
-                </div>
-                {menuTab === 'instructions' ? (
-                  <div className="instructions">
-                    <p>Use WASD or Arrow keys to move</p>
-                    <p>Hold Shift + WASD/Arrow keys for diagonal movement</p>
-                  </div>
-                ) : (
-                  <div className="inventory">
-                    <h3>Your Loot</h3>
-                    {Object.entries(character.inventory)
-                      .sort(([,a], [,b]) => b - a)
-                      .map(([item, count]) => (
-                        <div key={item} className="inventory-item">
-                          <span className="item-name">{item}</span>
-                          <span className="item-count">x{count}</span>
-                        </div>
-                      ))
-                    }
-                    {Object.keys(character.inventory).length === 0 && (
-                      <p className="empty-inventory">No items yet</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="grid" onContextMenu={(e) => e.preventDefault()}>
-        {grid.map((row, y) => (
-          <div key={y} className="row">
-            {row.map((cell, x) => (
-              <div
-                key={`${x}-${y}`}
-                className={`cell
-                  ${cell.isRevealed ? 'revealed' : ''}
-                  ${cell.isFlagged ? 'flagged' : ''}
-                  ${character.x === x && character.y === y ? 'character' : ''}`}
-                data-emoji={character.x === x && character.y === y ? character.emoji : ''}
-                >
-                {cell.isRevealed && !cell.isMine && cell.neighborMines > 0 && (
-                  <span style={{ zIndex: 4, position: 'relative', color: '#fff', textShadow: '1px 1px 1px rgba(0,0,0,0.5)' }}>{cell.neighborMines}</span>
-                )}
-                {cell.isRevealed && cell.isMine && '💥'}
-                {cell.isRevealed && cell.isDownstairs && '⬇️'}
-              </div>
-            ))}
-          </div>
-        ))}
+        <StatusBar
+          level={level}
+          character={character}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          menuTab={menuTab}
+          setMenuTab={setMenuTab}
+        />
+        <Grid grid={grid} character={character} />
       </div>
-
-      </div>
-      <div className="event-log">
-        <h2>Event Log</h2>
-        {logEntries.map(entry => (
-          <div key={entry.id} className={`event-log-entry ${entry.type}`}>
-            {entry.text}
-          </div>
-        ))}
-      </div>
+      <EventLog
+        logEntries={logEntries}
+        isDownstairs={grid[character.y]?.[character.x]?.isDownstairs || false}
+      />
     </div>
   )
 }
