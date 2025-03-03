@@ -1,29 +1,9 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-
-interface Cell {
-  isMine: boolean
-  isRevealed: boolean
-  isFlagged: boolean
-  neighborMines: number
-  loot?: string
-  isDownstairs?: boolean
-}
-
-interface Character {
-  x: number
-  y: number
-  health: number
-  points: number
-  inventory: { [key: string]: number }
-  emoji: string
-}
-
-interface LogEntry {
-  text: string
-  type: 'damage' | 'health' | 'points'
-  id: number
-}
+import { Cell, Character, LogEntry } from './components/types'
+import { Grid } from './components/Grid'
+import { StatusBar } from './components/StatusBar'
+import { EventLog } from './components/EventLog'
 
 function App() {
   const [level, setLevel] = useState(1)
@@ -363,96 +343,20 @@ function App() {
   return (
     <div className="game-container">
       <div className="game-content">
-        <div className="status-bar">
-          <div>Level: {level}</div>
-          <div>Health: {character.health}</div>
-          <div>Points: {character.points}</div>
-          <div className="menu-dropdown">
-            <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              Menu
-            </button>
-            {isMenuOpen && (
-              <div className="menu-content">
-                <div className="menu-tabs">
-                  <button 
-                    className={`menu-tab ${menuTab === 'instructions' ? 'active' : ''}`}
-                    onClick={() => setMenuTab('instructions')}
-                  >
-                    Instructions
-                  </button>
-                  <button 
-                    className={`menu-tab ${menuTab === 'inventory' ? 'active' : ''}`}
-                    onClick={() => setMenuTab('inventory')}
-                  >
-                    Inventory
-                  </button>
-                </div>
-                {menuTab === 'instructions' ? (
-                  <div className="instructions">
-                    <p>Use WASD or Arrow keys to move</p>
-                    <p>Hold Shift + WASD/Arrow keys for diagonal movement</p>
-                    <p>Press 'E' while standing on ⬇️ to descend to the next level</p>
-                  </div>
-                ) : (
-                  <div className="inventory">
-                    <h3>Your Loot</h3>
-                    {Object.entries(character.inventory)
-                      .sort(([,a], [,b]) => b - a)
-                      .map(([item, count]) => (
-                        <div key={item} className="inventory-item">
-                          <span className="item-name">{item}</span>
-                          <span className="item-count">x{count}</span>
-                        </div>
-                      ))
-                    }
-                    {Object.keys(character.inventory).length === 0 && (
-                      <p className="empty-inventory">No items yet</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="grid" onContextMenu={(e) => e.preventDefault()}>
-        {grid.map((row, y) => (
-          <div key={y} className="row">
-            {row.map((cell, x) => (
-              <div
-                key={`${x}-${y}`}
-                className={`cell
-                  ${cell.isRevealed ? 'revealed' : ''}
-                  ${cell.isFlagged ? 'flagged' : ''}
-                  ${character.x === x && character.y === y ? 'character' : ''}`}
-                data-emoji={character.x === x && character.y === y ? character.emoji : ''}
-                >
-                {cell.isRevealed && !cell.isMine && cell.neighborMines > 0 && (
-                  <span style={{ zIndex: 4, position: 'relative', color: '#fff', textShadow: '1px 1px 1px rgba(0,0,0,0.5)' }}>{cell.neighborMines}</span>
-                )}
-                {cell.isRevealed && cell.isMine && '💥'}
-                {cell.isRevealed && cell.isDownstairs && '⬇️'}
-              </div>
-            ))}
-          </div>
-        ))}
+        <StatusBar
+          level={level}
+          character={character}
+          isMenuOpen={isMenuOpen}
+          setIsMenuOpen={setIsMenuOpen}
+          menuTab={menuTab}
+          setMenuTab={setMenuTab}
+        />
+        <Grid grid={grid} character={character} />
       </div>
-
-      </div>
-      <div className="right-panel">
-        <div className="event-log">
-          <h2>Event Log</h2>
-          {logEntries.map(entry => (
-            <div key={entry.id} className={`event-log-entry ${entry.type}`}>
-              {entry.text}
-            </div>
-          ))}
-        </div>
-        {grid[character.y]?.[character.x]?.isDownstairs && (
-          <div className="press-e-hint">
-            Press 'E' to descend
-          </div>
-        )}
-      </div>
+      <EventLog
+        logEntries={logEntries}
+        isDownstairs={grid[character.y]?.[character.x]?.isDownstairs || false}
+      />
     </div>
   )
 }
