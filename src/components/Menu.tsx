@@ -1,40 +1,59 @@
+import React from 'react'
+
+type MenuCategory = 'main' | 'instructions' | 'inventory' | 'skillTree'
+
 interface MenuProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  menuTab: 'instructions' | 'inventory'
-  setMenuTab: (tab: 'instructions' | 'inventory') => void
+  setMenuTab: (tab: 'instructions' | 'inventory' | 'skillTree') => void
   inventory: { [key: string]: number }
 }
 
-export function Menu({ isOpen, setIsOpen, menuTab, setMenuTab, inventory }: MenuProps) {
-  return (
-    <div className="menu-dropdown">
-      <button className="menu-button" onClick={() => setIsOpen(!isOpen)}>
-        Menu
-      </button>
-      {isOpen && (
-        <div className="menu-content">
-          <div className="menu-tabs">
-            <button 
-              className={`menu-tab ${menuTab === 'instructions' ? 'active' : ''}`}
-              onClick={() => setMenuTab('instructions')}
-            >
-              Instructions
-            </button>
-            <button 
-              className={`menu-tab ${menuTab === 'inventory' ? 'active' : ''}`}
-              onClick={() => setMenuTab('inventory')}
-            >
-              Inventory
-            </button>
+export function Menu({ isOpen, setIsOpen, setMenuTab, inventory }: MenuProps) {
+  const [currentView, setCurrentView] = React.useState<MenuCategory>('main')
+
+  const handleCategoryClick = (category: MenuCategory) => {
+    setCurrentView(category)
+    if (category !== 'main') {
+      setMenuTab(category as 'instructions' | 'inventory' | 'skillTree')
+    }
+  }
+
+  const renderContent = () => {
+    switch (currentView) {
+      case 'main':
+        return (
+          <div className="menu-list">
+            <button className="menu-item" onClick={() => handleCategoryClick('instructions')}>Instructions</button>
+            <button className="menu-item" onClick={() => handleCategoryClick('inventory')}>Inventory</button>
+            <button className="menu-item" onClick={() => handleCategoryClick('skillTree')}>Skill Tree</button>
           </div>
-          {menuTab === 'instructions' ? (
+        )
+      case 'instructions':
+        return (
+          <div className="menu-category-content">
+            <button className="back-button" onClick={() => handleCategoryClick('main')}>← Back</button>
             <div className="instructions">
               <p>Use WASD or Arrow keys to move</p>
               <p>Hold Shift + WASD/Arrow keys for diagonal movement</p>
               <p>Press 'E' while standing on ⬇️ to descend to the next level</p>
             </div>
-          ) : (
+          </div>
+        )
+      case 'skillTree':
+        return (
+          <div className="menu-category-content">
+            <button className="back-button" onClick={() => handleCategoryClick('main')}>← Back</button>
+            <div className="skill-tree">
+              <h3>Skill Tree</h3>
+              <p>Coming soon...</p>
+            </div>
+          </div>
+        )
+      case 'inventory':
+        return (
+          <div className="menu-category-content">
+            <button className="back-button" onClick={() => handleCategoryClick('main')}>← Back</button>
             <div className="inventory">
               <h3>Your Loot</h3>
               {Object.entries(inventory)
@@ -50,7 +69,24 @@ export function Menu({ isOpen, setIsOpen, menuTab, setMenuTab, inventory }: Menu
                 <p className="empty-inventory">No items yet</p>
               )}
             </div>
-          )}
+          </div>
+        )
+    }
+  }
+
+  return (
+    <div className="menu-dropdown">
+      <button className="menu-button" onClick={() => {
+        setIsOpen(!isOpen)
+        if (!isOpen) {
+          setCurrentView('main')
+        }
+      }}>
+        Menu
+      </button>
+      {isOpen && (
+        <div className="menu-content">
+          {renderContent()}
         </div>
       )}
     </div>
