@@ -6,8 +6,8 @@ interface StatusBarProps {
   character: Character
   isMenuOpen: boolean
   setIsMenuOpen: (isOpen: boolean) => void
-  menuTab: 'instructions' | 'inventory'
-  setMenuTab: (tab: 'instructions' | 'inventory') => void
+  menuTab: 'instructions' | 'inventory' | 'skillTree'
+  setMenuTab: (tab: 'instructions' | 'inventory' | 'skillTree') => void
 }
 
 export function StatusBar({ level, character, isMenuOpen, setIsMenuOpen, menuTab, setMenuTab }: StatusBarProps) {

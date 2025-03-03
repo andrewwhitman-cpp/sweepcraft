@@ -5,12 +5,13 @@ type MenuCategory = 'main' | 'instructions' | 'inventory' | 'skillTree'
 interface MenuProps {
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
+  menuTab: 'instructions' | 'inventory' | 'skillTree'
   setMenuTab: (tab: 'instructions' | 'inventory' | 'skillTree') => void
   inventory: { [key: string]: number }
 }
 
-export function Menu({ isOpen, setIsOpen, setMenuTab, inventory }: MenuProps) {
-  const [currentView, setCurrentView] = React.useState<MenuCategory>('main')
+export function Menu({ isOpen, setIsOpen, menuTab, setMenuTab, inventory }: MenuProps) {
+  const [currentView, setCurrentView] = React.useState<MenuCategory>(menuTab)
 
   const handleCategoryClick = (category: MenuCategory) => {
     setCurrentView(category)

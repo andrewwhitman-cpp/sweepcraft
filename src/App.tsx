@@ -14,7 +14,7 @@ function App() {
 
   const [grid, setGrid] = useState<Cell[][]>([])
   const [logEntries, setLogEntries] = useState<LogEntry[]>([])
-  const [menuTab, setMenuTab] = useState<'instructions' | 'inventory'>('instructions')
+  const [menuTab, setMenuTab] = useState<'instructions' | 'inventory' | 'skillTree'>('instructions')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const AVAILABLE_CHARACTERS = [
     '🧙‍♂️'
