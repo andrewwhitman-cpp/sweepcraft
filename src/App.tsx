@@ -436,17 +436,22 @@ function App() {
           </div>
         ))}
       </div>
-      {grid[character.y]?.[character.x]?.isDownstairs && (
-        <div className="press-e-hint">Press 'E' to descend</div>
-      )}
+
       </div>
-      <div className="event-log">
-        <h2>Event Log</h2>
-        {logEntries.map(entry => (
-          <div key={entry.id} className={`event-log-entry ${entry.type}`}>
-            {entry.text}
+      <div className="right-panel">
+        <div className="event-log">
+          <h2>Event Log</h2>
+          {logEntries.map(entry => (
+            <div key={entry.id} className={`event-log-entry ${entry.type}`}>
+              {entry.text}
+            </div>
+          ))}
+        </div>
+        {grid[character.y]?.[character.x]?.isDownstairs && (
+          <div className="press-e-hint">
+            Press 'E' to descend
           </div>
-        ))}
+        )}
       </div>
     </div>
   )
